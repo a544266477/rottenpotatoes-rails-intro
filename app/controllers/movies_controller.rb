@@ -59,10 +59,35 @@ class MoviesController < ApplicationController
     end
     
 
+    def ratings
+      ratings = Array.new
+      movies = Movie.all
+      movies.each do |movie|
+         ratings.push movie[:rating]
+         ratings.uniq!
+      end
+      return ratings
+    end
+
+
     private
     # Making "internal" methods private is not required, but is a common practice.
     # This helps make clear which methods respond to requests, and which ones do not.
     def movie_params
       params.require(:movie).permit(:title, :rating, :description, :release_date)
     end
+  
+    def check
+      if params[:ratings]
+        params[:ratings].keys
+      else
+        @all_ratings
+      end
+    end
+  
+    
+    def find_class(header)
+      params[:sort] == header ? 'hilite' : nil
+    end
+    helper_method :find_class
   end
