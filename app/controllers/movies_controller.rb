@@ -9,8 +9,25 @@ class MoviesController < ApplicationController
     def index
       #@movies = Movie.all
       @all_ratings = Movie.all_ratings
-      @ratings_to_show = check
-      @movies = Movie.where(rating: @ratings_to_show)
+      if params[:ratings].nil?
+        @ratings_to_show = check
+      else
+        session[:ratings] = params[:ratings]
+        @ratings_to_show = check
+      end
+
+      if not params[:sort].nil?
+        session[:sort] = params[:sort]
+      end
+
+      if session[:sort]
+        @title_header = find_title('title')
+        @date_header = find_title('release_date')
+        @movies = Movie.where(rating: @ratings_to_show).order(session[:sort])
+      else
+        @movies = Movie.where(rating: @ratings_to_show)
+      end
+      @ratings_to_show = Hash[@ratings_to_show.map {|e| [e, '1']}]
     end
   
     def new
@@ -60,16 +77,16 @@ class MoviesController < ApplicationController
     end
 
     def check
-      if params[:ratings]
-        params[:ratings].keys
+      if session[:ratings]
+        session[:ratings].keys
       else
         @all_ratings
       end
     end
   
     
-    def find_class(header)
-      params[:sort] == header ? 'hilite' : nil
+    def find_title(header)
+      session[:sort] == header ? 'hilite' : nil
     end
-    helper_method :find_class
+    helper_method :find_title
   end
